@@ -1,4 +1,4 @@
-# Nuxt Layer Starter
+# Image Resizer
 
 Create Nuxt extendable layer with this GitHub template.
 

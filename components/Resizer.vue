@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import useSelectionArea from '../composables/useSelectionArea'
+
 const props = withDefaults(
   defineProps<{
     config?: IConfigResizer
@@ -6,7 +8,8 @@ const props = withDefaults(
   {
     config: {
       type:  'image/png',
-      quality: 1
+      quality: 1,
+      isDraggable: true
     }
   }
 )
@@ -27,11 +30,15 @@ const {
   isResizing
 } = useResize()
 
-const canvasRef = useTemplateRef('canvasRef')
-const rect = ref<IRectangle>()
+const {
+  isCreating,
+  isDragging,
+  mouseIsInSelectionArea,
+  rect
+} = useSelectionArea()
 
-const isDragging = ref(false)
-const isCreating = ref(false)
+const canvasRef = useTemplateRef('canvasRef')
+
 const dragOffsetX = ref(0)
 const dragOffsetY = ref(0)
 
@@ -102,13 +109,9 @@ const handleMouseDown = (event: MouseEvent) => {
     return
   }
 
-  if (
-    rect.value &&
-    mouseX >= rect.value.x &&
-    mouseX <= rect.value.x + rect.value.w &&
-    mouseY >= rect.value.y &&
-    mouseY <= rect.value.y + rect.value.h
-  ) {
+  if (rect.value && mouseIsInSelectionArea(mouseX, mouseY)) {
+    if (!props.config.isDraggable) return
+    
     isDragging.value = true
     dragOffsetX.value = mouseX - rect.value.x
     dragOffsetY.value = mouseY - rect.value.y
